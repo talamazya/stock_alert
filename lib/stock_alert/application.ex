@@ -5,13 +5,16 @@ defmodule StockAlert.Application do
 
   use Application
 
+  @url "wss://stream.binance.com:9443/ws/bnbbtc@depth"
+
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      StockAlertWeb.Endpoint
+      StockAlertWeb.Endpoint,
       # Starts a worker by calling: StockAlert.Worker.start_link(arg)
       # {StockAlert.Worker, arg},
+      {StockAlert.Connection, {@url, %{}}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
