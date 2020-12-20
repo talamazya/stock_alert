@@ -14,7 +14,8 @@ defmodule StockAlert.Application do
       StockAlertWeb.Endpoint,
       # Starts a worker by calling: StockAlert.Worker.start_link(arg)
       # {StockAlert.Worker, arg},
-      {StockAlert.Connection, {@url, %{}}}
+      {StockAlert.StockConnection, {@url, %{}}},
+      {StockAlert.UserConnection, {@url, %{}}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
