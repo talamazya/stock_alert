@@ -19,6 +19,7 @@ defmodule StockAlert.Manager do
     {:ok, state}
   end
 
+  # user setting
   def add_alert(user, alert) do
     GenServer.cast(__MODULE__, {:add_alert, user, alert})
   end
@@ -29,6 +30,11 @@ defmodule StockAlert.Manager do
 
   def remove_user(user) do
     GenServer.cast(__MODULE__, {:remove_user, user})
+  end
+
+  # stocks
+  def process_stocks(stocks) do
+    GenServer.cast(__MODULE__, {:process_stocks, stocks})
   end
 
   ## handle
@@ -52,8 +58,14 @@ defmodule StockAlert.Manager do
 
   def handle_cast({:remove_user, user}, state) do
     {:ok, pid} = Supervisor.get_worker(user) || {:ok, nil}
-
     handle_remove_user(user, pid)
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:process_stocks, stocks}, state) do
+    Enum.each(stocks, &process_stock(&1))
+
     {:noreply, state}
   end
 
@@ -93,5 +105,21 @@ defmodule StockAlert.Manager do
     end
 
     Supervisor.stop_worker(pid)
+  end
+
+  defp process_stock(%{Code: code} = stock) do
+    with [{^code, users}] <- :ets.lookup(:user_stock_mapping, code) do
+      Enum.each(users, &transfer_to_worker(&1, stock))
+    end
+  end
+
+  defp transfer_to_worker(user, stock) do
+    {:ok, pid} = Supervisor.get_worker(user) || {:ok, nil}
+
+    if pid do
+      Worker.process_stock(pid, stock)
+    else
+      Logger.error("cannot find worker for user: #{inspect(user)} and stock: #{inspect(stock)}")
+    end
   end
 end
