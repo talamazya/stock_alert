@@ -33,14 +33,14 @@ defmodule StockAlert.Alert do
   end
 
   def match_alert(alert, stock) do
-    %{field: field_name, value: value, comparison: comparison} = alert
+    %{field: field_name, value: alert_value, comparison: comparison} = alert
 
     with field_value when not is_nil(field_value) <- Map.get(stock, field_name),
-         {true, result} <- compare(field_value, comparison, value) do
+         {true, result} <- compare(String.to_float(field_value), comparison, alert_value) do
       matched_alert =
         alert
         |> Map.from_struct()
-        |> Map.put(:message, "#{inspect(alert.code)} value is #{result} #{inspect(value)}")
+        |> Map.put(:message, "#{alert.code} value is #{result} #{inspect(alert_value)}")
 
       {:ok, matched_alert}
     else
@@ -56,30 +56,4 @@ defmodule StockAlert.Alert do
       _ -> {left == right, "equal"}
     end
   end
-
-  # def to_struct(stock) do
-  #   stock = Enum.into(stock, %{}, fn {k, v} -> {Map.get(@socket_to_struct_key, k, k), v} end)
-  #   struct(Stock, stock)
-  # end
 end
-
-# {
-#   code: "TOTS3",
-#   comparison: ">",
-#   field: "Close",
-#   message: "TOTS3 value is higher than 80.70!",
-#   value: 80.70
-#   }
-
-# {
-#   "ID": "11942270",
-#   "High": "601.84",
-#   "Volume": "120170",
-#   "Change": "0",
-#   "Low": "599.36",
-#   "PctChange": "-2.40025",
-#   "Open": "601.84",
-#   "Price": "599.36",
-#   "Date": "18/11/2020 15:11:43",
-#   "Code": "A1LG34"
-# },

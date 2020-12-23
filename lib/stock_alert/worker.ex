@@ -27,8 +27,6 @@ defmodule StockAlert.Worker do
   def init(state) do
     Logger.info("Starting #{inspect(state)}")
 
-    # :ets.new(stock_alert_mapping(), [:named_table])
-
     {:ok, state}
   end
 
@@ -47,8 +45,10 @@ defmodule StockAlert.Worker do
     {:noreply, state}
   end
 
-  def handle_call({:add_alert, alert}, _from, state) do
-    handle_add_alert(alert, state)
+  def handle_call({:add_alert, alert}, _from, %{alerts: alerts} = state) do
+    state =
+      state
+      |> Map.put(:alerts, Alert.insert(alerts, Alert.to_struct(alert)))
 
     {:reply, :ok, state}
   end
@@ -63,15 +63,23 @@ defmodule StockAlert.Worker do
     Logger.info("Exiting worker: #{name} with reason: #{inspect(reason)}")
   end
 
-  ## Private
-  defp handle_add_alert(alert, %{alerts: alerts} = state) do
-    Map.put(state, :alerts, Alert.insert(alerts, Alert.to_struct(alert)))
-  end
-
   defp handle_process_stock(%{code: code} = alert, %{Code: code} = stock) do
     with {:ok, matched_alert} <- Alert.match_alert(alert, stock) do
       # send matched_alert to RabitMQ
+
+      IO.inspect(
+        "***********************************************************************************************"
+      )
+
+      IO.inspect("stock alert found !!!!!!!")
+      IO.inspect(stock, label: :stock)
+      IO.inspect(Map.from_struct(alert), label: :user_alert)
+      IO.inspect("Matched alert will be sent to RabitMQ")
       IO.inspect(matched_alert, label: :matched_alert)
+
+      IO.inspect(
+        "***********************************************************************************************"
+      )
     end
   end
 

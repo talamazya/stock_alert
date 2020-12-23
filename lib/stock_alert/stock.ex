@@ -20,17 +20,4 @@ defmodule StockAlert.Stock do
       _ -> stocks
     end
   end
-
-  # def to_struct(stock) do
-  #   stock = Enum.into(stock, %{}, fn {k, v} -> {Map.get(@socket_to_struct_key, k, k), v} end)
-  #   struct(Stock, stock)
-  # end
 end
-
-# {
-#   code: "TOTS3",
-#   comparison: ">",
-#   field: "Close",
-#   message: "TOTS3 value is higher than 80.70!",
-#   value: 80.70
-#   }

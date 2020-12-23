@@ -21,7 +21,7 @@ defmodule StockAlert.Manager do
 
   # user setting
   def add_alert(user, alert) do
-    GenServer.cast(__MODULE__, {:add_alert, user, alert})
+    GenServer.call(__MODULE__, {:add_alert, user, alert})
   end
 
   def remove_alert(user, alert) do
@@ -33,20 +33,11 @@ defmodule StockAlert.Manager do
   end
 
   # stocks
-  def process_stocks(stocks) do
+  def process_stocks(%{list: stocks}) do
     GenServer.cast(__MODULE__, {:process_stocks, stocks})
   end
 
-  ## handle
-  def handle_cast({:add_alert, user, %{code: code} = alert}, state) do
-    insert_ets(:user_stock_mapping, user, code)
-    insert_ets(:stock_user_mapping, code, user)
-
-    {:ok, pid} = Supervisor.get_worker(user) || Supervisor.start_worker(user)
-    Worker.add_alert(pid, alert)
-
-    {:noreply, state}
-  end
+  def process_stocks(_), do: nil
 
   def handle_cast({:remove_alert, user, alert}, state) do
     {:ok, pid} = Supervisor.get_worker(user) || {:ok, nil}
@@ -67,6 +58,16 @@ defmodule StockAlert.Manager do
     Enum.each(stocks, &process_stock(&1))
 
     {:noreply, state}
+  end
+
+  def handle_call({:add_alert, user, %{code: code} = alert}, _from, state) do
+    insert_ets(:user_stock_mapping, user, code)
+    insert_ets(:stock_user_mapping, code, user)
+
+    {:ok, pid} = Supervisor.get_worker(user) || Supervisor.start_worker(user)
+    Worker.add_alert(pid, alert)
+
+    {:reply, :ok, state}
   end
 
   defp insert_ets(table, key, value) do
@@ -108,7 +109,7 @@ defmodule StockAlert.Manager do
   end
 
   defp process_stock(%{Code: code} = stock) do
-    with [{^code, users}] <- :ets.lookup(:user_stock_mapping, code) do
+    with [{^code, users}] <- :ets.lookup(:stock_user_mapping, code) do
       Enum.each(users, &transfer_to_worker(&1, stock))
     end
   end

@@ -6,21 +6,21 @@ defmodule StockAlert.Application do
   use Application
 
   @url "wss://stream.binance.com:9443/ws/bnbbtc@depth"
+  @registry :workers_registry
 
   def start(_type, _args) do
-    # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
       StockAlertWeb.Endpoint,
       # Starts a worker by calling: StockAlert.Worker.start_link(arg)
-      # {StockAlert.Worker, arg},
       {StockAlert.StockConnection, {@url, %{}}},
-      {StockAlert.UserConnection, {@url, %{}}}
+      {StockAlert.UserConnection, {@url, %{}}},
+      StockAlert.Manager,
+      StockAlert.Supervisor,
+      {Registry, [keys: :unique, name: @registry]}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: StockAlert.Supervisor]
+    opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end
 
@@ -30,4 +30,6 @@ defmodule StockAlert.Application do
     StockAlertWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  def registry(), do: @registry
 end

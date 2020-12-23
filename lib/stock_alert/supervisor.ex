@@ -2,8 +2,7 @@ defmodule StockAlert.Supervisor do
   use DynamicSupervisor
 
   alias StockAlert.Worker
-
-  @registry :workers_registry
+  alias StockAlert.Application
 
   def start_link(_arg),
     do: DynamicSupervisor.start_link(__MODULE__, [], name: __MODULE__)
@@ -28,7 +27,7 @@ defmodule StockAlert.Supervisor do
   end
 
   def get_worker(name) do
-    Registry.lookup(@registry, name)
+    Registry.lookup(Application.registry(), name)
     |> case do
       [] -> nil
       [{pid, _}] -> {:ok, pid}
@@ -40,6 +39,6 @@ defmodule StockAlert.Supervisor do
   end
 
   defp via_tuple(name) do
-    {:via, Registry, {@registry, name}}
+    {:via, Registry, {Application.registry(), name}}
   end
 end

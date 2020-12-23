@@ -14,7 +14,8 @@ defmodule StockAlert.UserConnection do
     # IO.inspect "Received Message - Type: #{inspect type} -- Message: #{inspect msg}"
     msg
     |> Poison.decode!()
-    |> IO.inspect()
+
+    # |> IO.inspect()
 
     {:ok, state}
   end
