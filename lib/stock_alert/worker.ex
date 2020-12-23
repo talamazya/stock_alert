@@ -74,7 +74,7 @@ defmodule StockAlert.Worker do
       IO.inspect("stock alert found !!!!!!!")
       IO.inspect(stock, label: :stock)
       IO.inspect(Map.from_struct(alert), label: :user_alert)
-      IO.inspect("Matched alert will be sent to RabitMQ")
+      IO.puts("\nMatched alert will be sent to RabitMQ")
       IO.inspect(matched_alert, label: :matched_alert)
 
       IO.inspect(
