@@ -10,14 +10,12 @@ defmodule StockAlert.Application do
 
   def start(_type, _args) do
     children = [
-      # Start the endpoint when the application starts
       StockAlertWeb.Endpoint,
-      # Starts a worker by calling: StockAlert.Worker.start_link(arg)
-      {StockAlert.StockConnection, {@url, %{}}},
-      {StockAlert.UserConnection, {@url, %{}}},
-      StockAlert.Manager,
+      {Registry, [keys: :unique, name: @registry]},
       StockAlert.Supervisor,
-      {Registry, [keys: :unique, name: @registry]}
+      StockAlert.Manager,
+      {StockAlert.UserConnection, {@url, %{}}},
+      {StockAlert.StockConnection, {@url, %{}}}
     ]
 
     opts = [strategy: :one_for_one, name: __MODULE__]

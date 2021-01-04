@@ -20,6 +20,10 @@ defmodule StockAlert.Manager do
   end
 
   # user setting
+  def add_alerts(user, alerts) do
+    Enum.each(alerts, &add_alert(user, &1))
+  end
+
   def add_alert(user, alert) do
     GenServer.call(__MODULE__, {:add_alert, user, alert})
   end

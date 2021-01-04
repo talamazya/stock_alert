@@ -9,6 +9,9 @@ To start your Phoenix server:
 To run demo (run unit test)
   * `mix test`
 
+Requirement doc:
+  * `https://docs.google.com/document/d/1whHkyzLCX-ZzC7PcCsnBZaokxkCSb0T8501YlNtnOwo/edit`
+
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
