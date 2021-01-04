@@ -69,8 +69,6 @@ defmodule StockAlert.UserConnection do
     IO.inspect(data, label: :not_supported_remove_user_data)
   end
 
-
-
   # note: this function will be remove when I have a real data
   defp mock_process_frame() do
     mocked_name = "Caio Borghi"

@@ -11,6 +11,7 @@ defmodule StockAlert.Application do
   def start(_type, _args) do
     children = [
       StockAlertWeb.Endpoint,
+      StockAlert.AlertClient,
       {Registry, [keys: :unique, name: @registry]},
       StockAlert.Supervisor,
       StockAlert.Manager,

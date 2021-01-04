@@ -3,6 +3,7 @@ defmodule StockAlert.Worker do
   require Logger
 
   alias StockAlert.Alert
+  alias StockAlert.AlertClient
 
   ## API
   def start_link(name, process_name) do
@@ -66,6 +67,7 @@ defmodule StockAlert.Worker do
   defp handle_process_stock(%{code: code} = alert, %{Code: code} = stock) do
     with {:ok, matched_alert} <- Alert.match_alert(alert, stock) do
       # send matched_alert to RabitMQ
+      AlertClient.send_alert(matched_alert)
 
       IO.inspect(
         "***********************************************************************************************"
