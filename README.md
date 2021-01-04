@@ -9,6 +9,10 @@ To start your Phoenix server:
 To run demo (run unit test)
   * `mix test`
 
+To run mocked version 
+  * `iex -S mix phx.server`
+  * `StockAlert.AlertClient.get_alert_from_queue()`
+
 Requirement doc:
   * `https://docs.google.com/document/d/1whHkyzLCX-ZzC7PcCsnBZaokxkCSb0T8501YlNtnOwo/edit`
 
