@@ -33,6 +33,7 @@ defmodule StockAlert.StockConnection do
   end
 
   defp process_frame(_frame) do
+    # done later. Wait for other server !!!
   end
 
   defp mock_process_frame() do
