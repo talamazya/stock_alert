@@ -36,6 +36,10 @@ defmodule StockAlert.Manager do
     GenServer.cast(__MODULE__, {:remove_user, user})
   end
 
+  def list_users() do
+    GenServer.call(__MODULE__, :list_users)
+  end
+
   # stocks
   def process_stocks(%{list: stocks}) do
     GenServer.cast(__MODULE__, {:process_stocks, stocks})
@@ -72,6 +76,14 @@ defmodule StockAlert.Manager do
     Worker.add_alert(pid, alert)
 
     {:reply, :ok, state}
+  end
+
+  def handle_call(:list_users, _from, state) do
+    users =
+      :ets.tab2list(:user_stock_mapping)
+      |> Enum.into(%{}, fn {user, stocks} -> {user, MapSet.to_list(stocks)} end)
+
+    {:reply, users, state}
   end
 
   defp insert_ets(table, key, value) do
