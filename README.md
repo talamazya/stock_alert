@@ -17,6 +17,9 @@ APIs
   * list all users:
     `curl -X GET http://localhost:4000/users`
 
+  * get info of a user:
+  `curl -X GET http://localhost:4000/users/Caio%20Borghi`
+
 Requirement doc:
   * `https://docs.google.com/document/d/1whHkyzLCX-ZzC7PcCsnBZaokxkCSb0T8501YlNtnOwo/edit`
 
