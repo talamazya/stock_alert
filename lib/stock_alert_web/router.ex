@@ -19,6 +19,7 @@ defmodule StockAlertWeb.Router do
     get "/", PageController, :index
 
     resources "/users", UserController, only: [:index, :show]
+    get "/system", SystemController, :observe
   end
 
   # Other scopes may use custom stacks.

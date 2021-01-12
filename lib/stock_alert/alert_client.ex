@@ -51,7 +51,7 @@ defmodule StockAlert.AlertClient do
   end
 
   def handle_cast(:get_alert, %{chan: chan} = state) do
-    {:ok, payload, meta} = Basic.get(chan, @queue)
+    {:ok, payload, _meta} = Basic.get(chan, @queue)
 
     IO.inspect(payload, label: :alert_in_Rabbit_mq)
 
