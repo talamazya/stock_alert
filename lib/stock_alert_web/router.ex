@@ -20,6 +20,9 @@ defmodule StockAlertWeb.Router do
 
     resources "/users", UserController, only: [:index, :show]
     get "/system", SystemController, :observe
+    get "/system/process", SystemController, :total_process
+    get "/system/scheduler_usage", SystemController, :scheduler_usage
+    get "/system/top_high_reduction_process", SystemController, :top_high_reduction_process
   end
 
   # Other scopes may use custom stacks.

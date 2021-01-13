@@ -15,10 +15,13 @@ defmodule StockAlertWeb.UserController do
       |> render("user.json", %{data: user})
     else
       nil ->
+        # conn
+        # |> put_status(422)
+        # |> put_view(StockAlertWeb.ErrorView)
+        # |> render(:"422")
         conn
         |> put_status(422)
-        |> put_view(StockAlertWeb.ErrorView)
-        |> render(:"422")
+        |> json(%{data: "user not found !!"})
     end
   end
 end
