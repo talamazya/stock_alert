@@ -6,11 +6,9 @@ defmodule StockAlert.Worker do
   alias StockAlert.AlertClient
 
   ## API
-  def start_link(name, process_name) do
-    GenServer.start_link(__MODULE__, %{name: name, alerts: []}, name: process_name)
+  def start_link(user, process_name) do
+    GenServer.start_link(__MODULE__, %{user: user, alerts: []}, name: process_name)
   end
-
-  # def crash(name), do: GenServer.cast(via_tuple(name), :raise)
 
   def add_alert(pid, alert) do
     GenServer.call(pid, {:add_alert, alert})
@@ -40,8 +38,8 @@ defmodule StockAlert.Worker do
     raise(RuntimeError, message: "Error, Server #{name} has crashed")
   end
 
-  def handle_cast({:process_stock, stock}, %{alerts: alerts} = state) do
-    Enum.each(alerts, &handle_process_stock(&1, stock))
+  def handle_cast({:process_stock, stock}, %{alerts: alerts, user: user} = state) do
+    Enum.each(alerts, &handle_process_stock(&1, stock, user))
 
     {:noreply, state}
   end
@@ -64,10 +62,12 @@ defmodule StockAlert.Worker do
     Logger.info("Exiting worker: #{name} with reason: #{inspect(reason)}")
   end
 
-  defp handle_process_stock(%{code: code} = alert, %{Code: code} = stock) do
-    with {:ok, matched_alert} <- Alert.match_alert(alert, stock) do
+  defp handle_process_stock(%{code: code} = alert, %{Code: code} = stock, user) do
+    with {:ok, matched_alert} <- Alert.match_alert(alert, stock),
+         {:ok, rabbit_msg} <- build_rabbit_message(user, matched_alert) do
       # send matched_alert to RabitMQ
-      AlertClient.send_alert(matched_alert)
+
+      AlertClient.send_alert(rabbit_msg)
 
       IO.inspect(
         "***********************************************************************************************"
@@ -85,5 +85,23 @@ defmodule StockAlert.Worker do
     end
   end
 
-  defp handle_process_stock(_, _), do: nil
+  defp handle_process_stock(_, _, _), do: nil
+
+  defp build_rabbit_message(
+         %{id: user_id, phone: phone},
+         %{id: alert_id, message: msg}
+       ) do
+    rabbit_msg = %{
+      userID: user_id,
+      userPhone: phone,
+      alertID: alert_id,
+      message: msg
+    }
+
+    {:ok, rabbit_msg}
+  end
+
+  defp build_rabbit_message(_, _) do
+    {:error, "something wrong in data !!!!"}
+  end
 end

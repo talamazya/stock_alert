@@ -72,11 +72,11 @@ defmodule StockAlert.Manager do
     {:noreply, state}
   end
 
-  def handle_call({:add_alert, user, %{code: code} = alert}, _from, state) do
-    insert_ets(:user_stock_mapping, user, code)
-    insert_ets(:stock_user_mapping, code, user)
+  def handle_call({:add_alert, %{id: user_id} = user, %{code: code} = alert}, _from, state) do
+    insert_ets(:user_stock_mapping, user_id, code)
+    insert_ets(:stock_user_mapping, code, user_id)
 
-    {:ok, pid} = Supervisor.get_worker(user) || Supervisor.start_worker(user)
+    {:ok, pid} = Supervisor.get_worker(user_id) || Supervisor.start_worker(user)
     Worker.add_alert(pid, alert)
 
     {:reply, :ok, state}
@@ -145,13 +145,15 @@ defmodule StockAlert.Manager do
     end
   end
 
-  defp transfer_to_worker(user, stock) do
-    {:ok, pid} = Supervisor.get_worker(user) || {:ok, nil}
+  defp transfer_to_worker(user_id, stock) do
+    {:ok, pid} = Supervisor.get_worker(user_id) || {:ok, nil}
 
     if pid do
       Worker.process_stock(pid, stock)
     else
-      Logger.error("cannot find worker for user: #{inspect(user)} and stock: #{inspect(stock)}")
+      Logger.error(
+        "cannot find worker for user: #{inspect(user_id)} and stock: #{inspect(stock)}"
+      )
     end
   end
 end

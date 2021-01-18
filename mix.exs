@@ -41,7 +41,8 @@ defmodule StockAlert.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:websockex, "~> 0.4.2"},
       {:poison, "~> 3.1"},
-      {:amqp, "~> 1.6.0"}
+      {:amqp, "~> 1.6.0"},
+      {:json, "~> 1.4"}
     ]
   end
 end

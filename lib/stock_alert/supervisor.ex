@@ -10,12 +10,12 @@ defmodule StockAlert.Supervisor do
   def init(_arg),
     do: DynamicSupervisor.init(strategy: :one_for_one)
 
-  def start_worker(user_name) do
+  def start_worker(%{id: user_id} = user) do
     DynamicSupervisor.start_child(
       __MODULE__,
       %{
         id: Worker,
-        start: {Worker, :start_link, [user_name, via_tuple(user_name)]},
+        start: {Worker, :start_link, [user, via_tuple(user_id)]},
         restart: :transient
       }
     )
@@ -26,8 +26,8 @@ defmodule StockAlert.Supervisor do
     end
   end
 
-  def get_worker(name) do
-    Registry.lookup(Application.registry(), name)
+  def get_worker(user_id) do
+    Registry.lookup(Application.registry(), user_id)
     |> case do
       [] -> nil
       [{pid, _}] -> {:ok, pid}
@@ -38,7 +38,7 @@ defmodule StockAlert.Supervisor do
     GenServer.stop(pid, :normal)
   end
 
-  defp via_tuple(name) do
-    {:via, Registry, {Application.registry(), name}}
+  defp via_tuple(user_id) do
+    {:via, Registry, {Application.registry(), user_id}}
   end
 end

@@ -71,15 +71,19 @@ defmodule StockAlert.UserConnection do
 
   # note: this function will be remove when I have a real data
   defp mock_process_frame() do
-    mocked_name = "Caio Borghi"
+    mocked_user = %{name: "Caio Borghi", id: "1231298301283", phone: "+55900000000"}
 
-    mocked_setting = %{
-      code: "TOTS3",
-      comparison: ">",
-      field: :Open,
-      value: 25
-    }
+    mocked_settings = [
+      %{
+        id: "hashID1",
+        code: "TOTS3",
+        comparison: ">",
+        field: :Open,
+        value: 25,
+        message: "TOTS3 Open price is bigger than 25!"
+      }
+    ]
 
-    Manager.add_alert(mocked_name, mocked_setting)
+    Manager.add_alerts(mocked_user, mocked_settings)
   end
 end

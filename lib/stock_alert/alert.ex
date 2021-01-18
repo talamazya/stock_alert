@@ -2,14 +2,20 @@ defmodule StockAlert.Alert do
   alias __MODULE__
 
   defstruct [
+    :id,
     :code,
     :comparison,
     :field,
-    :value
+    :value,
+    :message
   ]
 
   def to_struct(alert) do
     struct(Alert, alert)
+  end
+
+  def to_map(alert) do
+    Map.from_struct(alert)
   end
 
   def equal?(alert1, alert2) do
@@ -32,17 +38,29 @@ defmodule StockAlert.Alert do
     end
   end
 
+  # def match_alert(alert, stock) do
+  #   %{field: field_name, value: alert_value, comparison: comparison} = alert
+
+  #   with field_value when not is_nil(field_value) <- Map.get(stock, field_name),
+  #        {true, result} <- compare(String.to_float(field_value), comparison, alert_value) do
+  #     matched_alert =
+  #       alert
+  #       |> Map.from_struct()
+  #       |> Map.put(:message, "#{alert.code} value is #{result} #{inspect(alert_value)}")
+
+  #     {:ok, matched_alert}
+  #   else
+  #     nil -> {:error, :not_match}
+  #     {false, _} -> {:error, :not_match}
+  #   end
+  # end
+
   def match_alert(alert, stock) do
     %{field: field_name, value: alert_value, comparison: comparison} = alert
 
     with field_value when not is_nil(field_value) <- Map.get(stock, field_name),
-         {true, result} <- compare(String.to_float(field_value), comparison, alert_value) do
-      matched_alert =
-        alert
-        |> Map.from_struct()
-        |> Map.put(:message, "#{alert.code} value is #{result} #{inspect(alert_value)}")
-
-      {:ok, matched_alert}
+         {true, _result} <- compare(String.to_float(field_value), comparison, alert_value) do
+      {:ok, to_map(alert)}
     else
       nil -> {:error, :not_match}
       {false, _} -> {:error, :not_match}
