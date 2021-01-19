@@ -62,6 +62,18 @@ defmodule StockAlert.StockConnection do
           Price: "27.69",
           Date: "18/11/2020 15:44:31",
           Code: "TOTS3"
+        },
+        %{
+          ID: "11942964",
+          High: "27.91",
+          Volume: "121895650",
+          Change: "0",
+          Low: "26.97",
+          PctChange: "1.98895",
+          Open: "27.21",
+          Price: "50",
+          Date: "18/11/2020 15:44:31",
+          Code: "TOTS3"
         }
       ]
     }

@@ -39,9 +39,18 @@ defmodule StockAlert.Worker do
   end
 
   def handle_cast({:process_stock, stock}, %{alerts: alerts, user: user} = state) do
-    Enum.each(alerts, &handle_process_stock(&1, stock, user))
+    new_alerts =
+      alerts
+      |> Enum.with_index()
+      |> Enum.reduce_while(alerts, fn {alert, idx}, acc ->
+        with :matched <- handle_process_stock(alert, stock, user) do
+          {:halt, List.delete_at(acc, idx)}
+        else
+          _ -> {:cont, acc}
+        end
+      end)
 
-    {:noreply, state}
+    {:noreply, Map.put(state, :alerts, new_alerts)}
   end
 
   def handle_call({:add_alert, alert}, _from, %{alerts: alerts} = state) do
@@ -66,7 +75,6 @@ defmodule StockAlert.Worker do
     with {:ok, matched_alert} <- Alert.match_alert(alert, stock),
          {:ok, rabbit_msg} <- build_rabbit_message(user, matched_alert) do
       # send matched_alert to RabitMQ
-
       AlertClient.send_alert(rabbit_msg)
 
       IO.inspect(
@@ -82,6 +90,10 @@ defmodule StockAlert.Worker do
       IO.inspect(
         "***********************************************************************************************"
       )
+
+      :matched
+    else
+      _ -> :not_matched
     end
   end
 
